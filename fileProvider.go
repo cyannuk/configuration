@@ -1,17 +1,16 @@
 package configuration
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"github.com/pelletier/go-toml"
 )
 
-// NewFileProvider creates new provider which read values from files (json, yaml)
+// NewFileProvider creates new provider which read values from files (toml)
 func NewFileProvider(fileName string) (fp fileProvider, err error) {
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -24,12 +23,7 @@ func NewFileProvider(fileName string) (fp fileProvider, err error) {
 		return fp, err
 	}
 
-	fn, err := decodeFunc(fileName)
-	if err != nil {
-		return fp, err
-	}
-
-	if err := fn(b, &fp.fileData); err != nil {
+	if err := toml.Unmarshal(b, &fp.fileData); err != nil {
 		return fp, err
 	}
 	return
@@ -48,39 +42,15 @@ func (fp fileProvider) Provide(field reflect.StructField, v reflect.Value, path 
 	return SetField(field, v, valStr)
 }
 
-func decodeFunc(fileName string) (func(data []byte, v interface{}) error, error) {
-	fileName = strings.ToLower(fileName)
-
-	if strings.HasSuffix(fileName, ".json") {
-		return json.Unmarshal, nil
-	}
-	if strings.HasSuffix(fileName, ".yaml") {
-		return yaml.Unmarshal, nil
-	}
-	if strings.HasSuffix(fileName, ".yml") {
-		return yaml.Unmarshal, nil
-	}
-
-	return nil, fmt.Errorf("fileProvider: unsupported file type: %q", fileName)
-}
-
 func findValStrByPath(i interface{}, path []string) (string, bool) {
 	if len(path) == 0 {
 		return "", false
 	}
 	firstInPath := strings.ToLower(path[0])
 
-	currentFieldStr, ok := i.(map[string]interface{}) // unmarshaled from json
+	currentFieldStr, ok := i.(map[string]interface{})
 	if !ok {
-		currentFieldIface, ok := i.(map[interface{}]interface{}) // unmarshaled from yaml
-		if !ok {
-			return "", false
-		}
-
-		currentFieldStr = map[string]interface{}{}
-		for k, v := range currentFieldIface {
-			currentFieldStr[fmt.Sprint(k)] = v
-		}
+		return "", false
 	}
 
 	for k, v := range currentFieldStr {

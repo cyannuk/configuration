@@ -41,7 +41,7 @@ func TestConfigurator(t *testing.T) {
 		}
 	}{}
 
-	fileProvider, err := NewFileProvider("./testdata/input.yml")
+	fileProvider, err := NewFileProvider("./testdata/input.toml")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

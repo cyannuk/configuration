@@ -7,7 +7,7 @@ import (
 
 func TestGetTags(t *testing.T) {
 	type testStruct struct {
-		Name string `json:"jsonVal"  default:"defaultVal"  env:"envVal"  flag:"flagVal"`
+		Name string `default:"defaultVal"  env:"envVal"  flag:"flagVal"`
 	}
 	field := reflect.TypeOf(&testStruct{}).Elem().Field(0)
 
@@ -16,11 +16,6 @@ func TestGetTags(t *testing.T) {
 		fn             func(f reflect.StructField) string
 		expectedResult string
 	}{
-		{
-			name:           "json",
-			fn:             getJSONTag,
-			expectedResult: "jsonVal",
-		},
 		{
 			name:           "default",
 			fn:             getDefaultTag,

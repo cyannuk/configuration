@@ -1,8 +1,8 @@
-module github.com/BoRuDar/configuration/v3
+module github.com/cyannuk/configuration/v3
 
-go 1.14
+go 1.16
 
 require (
-	github.com/stretchr/testify v1.5.1
-	gopkg.in/yaml.v2 v2.2.2
+	github.com/pelletier/go-toml v1.9.1
+	github.com/stretchr/testify v1.7.0
 )
